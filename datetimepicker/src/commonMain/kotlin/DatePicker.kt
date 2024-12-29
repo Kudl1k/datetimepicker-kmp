@@ -1,22 +1,8 @@
 
-import DateTimeOperations.getLocalDate
-import DateTimeOperations.addMonth
-import DateTimeOperations.subtractMonth
-import DateTimeOperations.format
-import DateTimeOperations.getMonthName
-import DateTimeOperations.getCalendarDates
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -24,18 +10,19 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import DateTimeOperations.addMonth
+import DateTimeOperations.getLocalDate
+import DateTimeOperations.getCalendarDates
+import DateTimeOperations.getMonthName
+import DateTimeOperations.subtractMonth
+import DateTimeOperations.format
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -66,24 +53,39 @@ fun DatePicker(
                 val endDate = selectedSecondDate!!
                 val start = if (startDate.date < endDate.date) startDate else endDate
                 val end = if (startDate.date < endDate.date) endDate else startDate
-                formatedDayFrom = start.date.format()
-                formatedDayTo = end.date.format()
-                finalDate = "$formatedDayFrom - $formatedDayTo"
-                onRangeSelected(start.date, end.date)
-                dates.map {
-                    it.copy(isInSelectedRange = it.date in start.date .. end.date, isSelected = it.date == start.date || it.date == end.date, isStartOfRange = it.date == start.date)
+                val rangeHasDisabledDate = dates.any { it.date in start.date..end.date && it.isDisabled }
+                if (rangeHasDisabledDate) {
+                    selectedDate = selectedSecondDate
+                    selectedSecondDate = null
+                    formatedDayFrom = selectedDate!!.date.format()
+                    finalDate = formatedDayFrom
+                    onSelectDate(selectedDate!!.date)
+                    dates.map {
+                        it.copy(isSelected = it.date == selectedDate!!.date)
+                    }
+                } else {
+                    formatedDayFrom = start.date.format()
+                    formatedDayTo = end.date.format()
+                    finalDate = "$formatedDayFrom - $formatedDayTo"
+                    onRangeSelected(start.date, end.date)
+                    dates.map {
+                        it.copy(
+                            isInSelectedRange = it.date in start.date..end.date,
+                            isSelected = it.date == start.date || it.date == end.date,
+                            isStartOfRange = it.date == start.date
+                        )
+                    }
                 }
-            } else if (selectedDate != null){
+            } else if (selectedDate != null) {
                 formatedDayFrom = selectedDate!!.date.format()
                 finalDate = formatedDayFrom
-                if (!range){
+                if (!range) {
                     onSelectDate(selectedDate!!.date)
                 }
                 dates.map {
                     it.copy(isSelected = it.date == selectedDate!!.date)
                 }
-            }
-            else {
+            } else {
                 dates
             }
         }
@@ -95,7 +97,7 @@ fun DatePicker(
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally,
-        ){
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -104,7 +106,7 @@ fun DatePicker(
             ) {
                 Text(
                     text = selectedMonth.getMonthName(),
-                    style = MaterialTheme.typography.h6,
+                    style = MaterialTheme.typography.h5,
                     modifier = Modifier.weight(1f)
                 )
                 Row(
@@ -124,7 +126,7 @@ fun DatePicker(
                             imageVector = Icons.Default.KeyboardArrowLeft,
                             contentDescription = "Previous month",
                             tint = MaterialTheme.colors.onSurface,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(40.dp)
                         )
                     }
                     Spacer(modifier = Modifier.size(8.dp))
@@ -141,7 +143,7 @@ fun DatePicker(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "Next month",
                             tint = MaterialTheme.colors.onSurface,
-                            modifier = Modifier.size(32.dp)
+                            modifier = Modifier.size(40.dp)
                         )
                     }
                 }
@@ -156,7 +158,7 @@ fun DatePicker(
                             .aspectRatio(1f)
                             .weight(1f),
                         contentAlignment = Alignment.Center
-                    ){
+                    ) {
                         Text(
                             text = day.name[0].toString(),
                             textAlign = TextAlign.Center,
@@ -180,23 +182,29 @@ fun DatePicker(
                                 .clip(shape = RoundedCornerShape(100))
                                 .datePickerBoxToday(calendarDate)
                                 .datePickerBoxSelected(calendarDate)
-                                .clickable {
+                                .clickable(enabled = !calendarDate.isDisabled) {
                                     if (selectedDate == null) {
                                         selectedDate = calendarDate
                                     } else if (selectedSecondDate == null && range) {
-                                        selectedSecondDate = calendarDate
+                                        if (calendarDate.date > selectedDate!!.date) {
+                                            selectedSecondDate = calendarDate
+                                        } else {
+                                            selectedDate = calendarDate
+                                            selectedSecondDate = null
+                                        }
                                     } else {
                                         selectedDate = calendarDate
                                         selectedSecondDate = null
                                     }
                                 },
                             contentAlignment = Alignment.Center
-                        ){
+                        ) {
                             Text(
                                 text = calendarDate.day.toString(),
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 color = when {
+                                    calendarDate.isDisabled -> MaterialTheme.colors.onSurface.copy(alpha = 0.2f)
                                     calendarDate.isSelected -> MaterialTheme.colors.onPrimary
                                     calendarDate.isToday -> MaterialTheme.colors.primary
                                     calendarDate.isCurrentMonth -> MaterialTheme.colors.onSurface
@@ -213,7 +221,7 @@ fun DatePicker(
 
 @Composable
 private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
-    return when(date.isToday) {
+    return when (date.isToday) {
         true -> this.border(1.dp, MaterialTheme.colors.primary, shape = RoundedCornerShape(100))
         false -> this
     }
@@ -221,7 +229,7 @@ private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
 
 @Composable
 private fun Modifier.datePickerBoxSelected(date: CalendarDate): Modifier {
-    return when(date.isSelected) {
+    return when (date.isSelected) {
         true -> this.background(MaterialTheme.colors.primary, shape = RoundedCornerShape(100))
         false -> this
     }
@@ -229,7 +237,7 @@ private fun Modifier.datePickerBoxSelected(date: CalendarDate): Modifier {
 
 @Composable
 private fun Modifier.datePickerBoxSelectedRange(date: CalendarDate): Modifier {
-    return when(date.isInSelectedRange) {
+    return when (date.isInSelectedRange) {
         true -> {
             if (date.isSelected && date.isStartOfRange) {
                 this.background(MaterialTheme.colors.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))

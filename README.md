@@ -32,6 +32,9 @@ data class DateTimePickerDefaults(
     val monthNames: MonthNames = MonthNames.ENGLISH_FULL,
     val dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_FULL,
     val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    var disabledDates: List<String> = emptyList(),
+    var dayOfWeekNamesShort: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED, // They are calculated from dayOfWeekNames
+    var disablePastDates: Boolean = false,
     val formater: DateTimeFormat<LocalDate> = LocalDate.Format {
         dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
         chars(", ")

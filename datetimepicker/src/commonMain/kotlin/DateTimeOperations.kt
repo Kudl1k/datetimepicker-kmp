@@ -62,19 +62,19 @@ object DateTimeOperations {
         val numberOfDaysInPreviousMonth = getNumberOfDaysInMonth(previousMonth)
         for (i in daysFromPreviousMonth downTo 1) {
             val date = LocalDate(previousMonth.year, previousMonth.month, numberOfDaysInPreviousMonth - i + 1)
-            calendarDates.add(CalendarDate(date, date.dayOfWeek, date.dayOfMonth, false, date == today, false))
+            calendarDates.add(CalendarDate(date, date.dayOfWeek, date.dayOfMonth, false, date == today, false, isDisabled = date in dateTimePickerDefaults.disabledLocalDates || (dateTimePickerDefaults.disablePastDates && date < today)))
         }
 
         for (day in 1..numberOfDaysInMonth) {
             val date = LocalDate(selectedYear, selectedMonth, day)
-            calendarDates.add(CalendarDate(date, date.dayOfWeek, day, true, date == today, false))
+            calendarDates.add(CalendarDate(date, date.dayOfWeek, day, true, date == today, false, isDisabled = date in dateTimePickerDefaults.disabledLocalDates || (dateTimePickerDefaults.disablePastDates && date < today)))
         }
 
         val daysFromNextMonth = (7 - (calendarDates.size % 7)) % 7
         val nextMonth = localDate.plus(1, DateTimeUnit.MONTH)
         for (day in 1..daysFromNextMonth) {
             val date = LocalDate(nextMonth.year, nextMonth.month, day)
-            calendarDates.add(CalendarDate(date, date.dayOfWeek, day, false, date == today, false))
+            calendarDates.add(CalendarDate(date, date.dayOfWeek, day, false, date == today, false, isDisabled = date in dateTimePickerDefaults.disabledLocalDates || (dateTimePickerDefaults.disablePastDates && date < today)))
         }
         return calendarDates
     }
@@ -89,14 +89,18 @@ data class CalendarDate(
     var isSelected: Boolean,
     var isInSelectedRange: Boolean = false,
     var isStartOfRange: Boolean = false,
+    var isDisabled: Boolean = false
 )
 
 data class DateTimePickerDefaults(
     val monthNames: MonthNames = MonthNames.ENGLISH_FULL,
     val dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_FULL,
     val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    var dayOfWeekNamesShort: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED,
+    var disabledDates: List<String> = emptyList(),
+    var disablePastDates: Boolean = false,
     val formater: DateTimeFormat<LocalDate> = LocalDate.Format {
-        dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
+        dayOfWeek(dayOfWeekNamesShort)
         chars(", ")
         date(LocalDate.Format {
             monthName(MonthNames.ENGLISH_FULL)
@@ -105,7 +109,7 @@ data class DateTimePickerDefaults(
         })
     }
 ){
-    var dayOfWeekNamesShort: DayOfWeekNames
+    var disabledLocalDates: MutableList<LocalDate>
     init {
         val listOfDays = mutableListOf<String>()
         for (day in dayOfWeekNames.names.indices){
@@ -120,5 +124,13 @@ data class DateTimePickerDefaults(
             saturday = listOfDays[5],
             sunday = listOfDays[6]
         )
+        disabledLocalDates = mutableListOf()
+        for (date in disabledDates) {
+            try {
+                disabledLocalDates.add(LocalDate.parse(date))
+            } catch (e: IllegalArgumentException) {
+                throw IllegalArgumentException("Invalid date format in disabledDates list. Please use 'yyyy-MM-dd' or other valid date format supported by kotlinx.datetime library.")
+            }
+        }
     }
 }
