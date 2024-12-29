@@ -11,54 +11,16 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.until
 
-object TimeOperations {
-    private var monthNames: MonthNames = MonthNames.ENGLISH_ABBREVIATED
-    private var dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_ABBREVIATED
-    private var timeZone: TimeZone = TimeZone.currentSystemDefault()
+object DateTimeOperations {
 
-    fun setMonthNames(monthNames: CalendarMonthNames) {
-        this.monthNames = MonthNames(
-            january = monthNames.january,
-            february = monthNames.february,
-            march = monthNames.march,
-            april = monthNames.april,
-            may = monthNames.may,
-            june = monthNames.june,
-            july = monthNames.july,
-            august = monthNames.august,
-            september = monthNames.september,
-            october = monthNames.october,
-            november = monthNames.november,
-            december = monthNames.december,
-        )
-    }
+    private var dateTimePickerDefaults = DateTimePickerDefaults()
 
-    fun setDayOfWeekNames(dayOfWeekNames: CalendarDayOfWeekNames) {
-        this.dayOfWeekNames = DayOfWeekNames(
-            monday = dayOfWeekNames.monday,
-            tuesday = dayOfWeekNames.tuesday,
-            wednesday = dayOfWeekNames.wednesday,
-            thursday = dayOfWeekNames.thursday,
-            friday = dayOfWeekNames.friday,
-            saturday = dayOfWeekNames.saturday,
-            sunday = dayOfWeekNames.sunday
-        )
-    }
-
-    private fun getFormater(): DateTimeFormat<LocalDate> {
-        return LocalDate.Format {
-            dayOfWeek(dayOfWeekNames) // "Mon", "Tue", ...
-            chars(", ")
-            date(LocalDate.Format {
-                monthName(monthNames)
-                chars(" ")
-                dayOfMonth()
-            })
-        }
+    fun setDateTimePickerDefaults(dateTimePickerDefaults: DateTimePickerDefaults) {
+        this.dateTimePickerDefaults = dateTimePickerDefaults
     }
 
     fun getLocalDate(): LocalDate {
-        return Clock.System.now().toLocalDateTime(timeZone).date
+        return Clock.System.now().toLocalDateTime(dateTimePickerDefaults.timeZone).date
     }
 
     fun LocalDate.addMonth(): LocalDate {
@@ -70,13 +32,12 @@ object TimeOperations {
     }
 
     fun LocalDate.format(): String {
-        val format = getFormater()
+        val format = dateTimePickerDefaults.formater
         return format.format(this)
     }
 
     fun LocalDate.getMonthName(): String {
-        return this.month.name.lowercase()
-            .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() } + " ${this.year}"
+        return dateTimePickerDefaults.monthNames.names[this.month.ordinal] + " " + this.year
     }
 
     private fun getNumberOfDaysInMonth(localDate: LocalDate): Int {
@@ -115,11 +76,8 @@ object TimeOperations {
             val date = LocalDate(nextMonth.year, nextMonth.month, day)
             calendarDates.add(CalendarDate(date, date.dayOfWeek, day, false, date == today, false))
         }
-
         return calendarDates
     }
-
-
 }
 
 data class CalendarDate(
@@ -133,52 +91,34 @@ data class CalendarDate(
     var isStartOfRange: Boolean = false,
 )
 
-data class CalendarMonthNames(
-    val january: String,
-    val february: String,
-    val march: String,
-    val april: String,
-    val may: String,
-    val june: String,
-    val july: String,
-    val august: String,
-    val september: String,
-    val october: String,
-    val november: String,
-    val december: String,
-)
-
-data class CalendarDayOfWeekNames(
-    val monday: String,
-    val tuesday: String,
-    val wednesday: String,
-    val thursday: String,
-    val friday: String,
-    val saturday: String,
-    val sunday: String
-)
-
-val defaultMonthNames = CalendarMonthNames(
-    january = "Jan",
-    february = "Feb",
-    march = "Mar",
-    april = "Apr",
-    may = "May",
-    june = "Jun",
-    july = "Jul",
-    august = "Aug",
-    september = "Sep",
-    october = "Oct",
-    november = "Nov",
-    december = "Dec",
-)
-
-val defaultDayOfWeekNames = CalendarDayOfWeekNames(
-    monday = "Mon",
-    tuesday = "Tue",
-    wednesday = "Wed",
-    thursday = "Thu",
-    friday = "Fri",
-    saturday = "Sat",
-    sunday = "Sun"
-)
+data class DateTimePickerDefaults(
+    val monthNames: MonthNames = MonthNames.ENGLISH_FULL,
+    val dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_FULL,
+    val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    val formater: DateTimeFormat<LocalDate> = LocalDate.Format {
+        dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
+        chars(", ")
+        date(LocalDate.Format {
+            monthName(MonthNames.ENGLISH_FULL)
+            chars(" ")
+            dayOfMonth()
+        })
+    }
+){
+    var dayOfWeekNamesShort: DayOfWeekNames
+    init {
+        val listOfDays = mutableListOf<String>()
+        for (day in dayOfWeekNames.names.indices){
+            listOfDays.add(dayOfWeekNames.names[day].substring(0, 3))
+        }
+        dayOfWeekNamesShort = DayOfWeekNames(
+            monday = listOfDays[0],
+            tuesday = listOfDays[1],
+            wednesday = listOfDays[2],
+            thursday = listOfDays[3],
+            friday = listOfDays[4],
+            saturday = listOfDays[5],
+            sunday = listOfDays[6]
+        )
+    }
+}

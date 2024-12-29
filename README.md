@@ -1,5 +1,5 @@
 # Datetimepicker for Kotlin Multiplatform
-This is a Kotlin Multiplatform library that provides a datetimepicker for Android and iOS. It is based on the [kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime) library. The library is written in Compose Multiplatform. I have created this library because I needed a datetimepicker for my Kotlin Multiplatform project and I could not find any library that would suit my needs. The library is still in development and I will be adding more features in the future.
+This is a Kotlin Multiplatform library that provides a datetimepicker for Android and iOS. It is based on the [kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime) library. The library is written in Compose Multiplatform. I have created this library because I needed a datetimepicker for my Kotlin Multiplatform project and I could not find any library that would suit my needs. The library is still in development and I will be adding more features in the future. If you have any suggestions or you have found a bug, please let me know. I will be happy to help you. 
 
 ## Features
 - Date picker
@@ -18,13 +18,29 @@ implementation("cz.kudladev:datetimepicker-kmp:<latest_version>")
 ![Maven Central Version](https://img.shields.io/maven-central/v/cz.kudladev/datetimepicker-kmp)
 ## Usage
 ```kotlin
-Calendar(
+DatePicker(
     modifier: Modifier = Modifier,
     range: Boolean = false,
     onSelectDate: (LocalDate) -> Unit = {},
     onRangeSelected: (LocalDate, LocalDate) -> Unit = { _, _ -> },
-    monthNames: CalendarMonthNames = defaultMonthNames,
-    dayOfWeekNames: CalendarDayOfWeekNames = defaultDayOfWeekNames
+    dateTimePickerDefaults: DateTimePickerDefaults = DateTimePickerDefaults(),
+)
+```
+Where `DateTimePickerDefaults` is a class that contains the following properties:
+```kotlin
+data class DateTimePickerDefaults(
+    val monthNames: MonthNames = MonthNames.ENGLISH_FULL,
+    val dayOfWeekNames: DayOfWeekNames = DayOfWeekNames.ENGLISH_FULL,
+    val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+    val formater: DateTimeFormat<LocalDate> = LocalDate.Format {
+        dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
+        chars(", ")
+        date(LocalDate.Format {
+            monthName(MonthNames.ENGLISH_FULL)
+            chars(" ")
+            dayOfMonth()
+        })
+    }
 )
 ```
 ## Coming soon

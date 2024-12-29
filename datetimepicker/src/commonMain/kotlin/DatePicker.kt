@@ -1,5 +1,10 @@
 
-
+import DateTimeOperations.getLocalDate
+import DateTimeOperations.addMonth
+import DateTimeOperations.subtractMonth
+import DateTimeOperations.format
+import DateTimeOperations.getMonthName
+import DateTimeOperations.getCalendarDates
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -32,30 +38,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
-import TimeOperations.getLocalDate
-import TimeOperations.addMonth
-import TimeOperations.subtractMonth
-import TimeOperations.format
-import TimeOperations.getMonthName
-import TimeOperations.getCalendarDates
 
 @Composable
-fun Calendar(
+fun DatePicker(
     modifier: Modifier = Modifier,
     range: Boolean = false,
     onSelectDate: (LocalDate) -> Unit = {},
     onRangeSelected: (LocalDate, LocalDate) -> Unit = { _, _ -> },
-    monthNames: CalendarMonthNames = defaultMonthNames,
-    dayOfWeekNames: CalendarDayOfWeekNames = defaultDayOfWeekNames
+    dateTimePickerDefaults: DateTimePickerDefaults = DateTimePickerDefaults(),
 ) {
-    TimeOperations.setMonthNames(monthNames)
-    TimeOperations.setDayOfWeekNames(dayOfWeekNames)
+    DateTimeOperations.setDateTimePickerDefaults(dateTimePickerDefaults)
 
     var selectedMonth by remember { mutableStateOf(getLocalDate()) }
 
     var selectedDate by remember { mutableStateOf<CalendarDate?>(null) }
     var selectedSecondDate by remember { mutableStateOf<CalendarDate?>(null) }
-
 
     var formatedDayFrom by remember { mutableStateOf("") }
     var formatedDayTo by remember { mutableStateOf("") }
@@ -92,9 +89,6 @@ fun Calendar(
         }
     }
 
-
-
-
     Column(
         modifier = modifier
             .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
@@ -106,17 +100,16 @@ fun Calendar(
         ){
             Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp),
+                    .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = selectedMonth.getMonthName(),
+                    style = MaterialTheme.typography.h6,
                     modifier = Modifier.weight(1f)
                 )
                 Row(
-                    modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.End
                 ) {
@@ -162,7 +155,8 @@ fun Calendar(
                 for (day in DayOfWeek.entries) {
                     Box(
                         modifier = Modifier
-                            .size(40.dp),
+                            .aspectRatio(1f)
+                            .weight(1f),
                         contentAlignment = Alignment.Center
                     ){
                         Text(
@@ -182,7 +176,8 @@ fun Calendar(
                         val calendarDate = calendarDates[j]
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .aspectRatio(1f)
+                                .weight(1f)
                                 .datePickerBoxSelectedRange(calendarDate)
                                 .clip(shape = RoundedCornerShape(100))
                                 .datePickerBoxToday(calendarDate)
@@ -217,8 +212,6 @@ fun Calendar(
         }
     }
 }
-
-
 
 @Composable
 private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
