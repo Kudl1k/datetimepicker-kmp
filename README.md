@@ -53,6 +53,7 @@ data class DateTimePickerDefaults(
     }
 )
 ```
+If you want to edit the defaults, You need to add the [kotlinx-datetime](https://github.com/Kotlin/kotlinx-datetime) dependency.
 ## Coming soon
 - [ ] Time picker
 - [ ] Time range picker
