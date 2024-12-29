@@ -57,5 +57,5 @@ data class DateTimePickerDefaults(
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
-[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-white.svg)](https://www.buymeacoffee.com/pacha)
+[![BuyMeACoffee](https://raw.githubusercontent.com/pachadotdev/buymeacoffee-badges/main/bmc-white.svg)](https://buymeacoffee.com/kudl1k)
 
