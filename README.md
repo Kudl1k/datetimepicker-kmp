@@ -27,5 +27,8 @@ Calendar(
     dayOfWeekNames: CalendarDayOfWeekNames = defaultDayOfWeekNames
 )
 ```
+## Coming soon
+- [ ] Time picker
+- [ ] Time range picker
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
