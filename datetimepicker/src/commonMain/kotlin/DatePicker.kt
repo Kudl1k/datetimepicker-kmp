@@ -91,8 +91,6 @@ fun DatePicker(
 
     Column(
         modifier = modifier
-            .border(1.dp, Color.Gray, shape = RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colors.surface),
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
