@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "cz.kudladev"
-version = "1.0.3"
+version = "1.0.4"
 
 kotlin {
     androidTarget {
@@ -42,7 +42,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(compose.foundation)
-                implementation(compose.material)
+                implementation(compose.material3)
                 implementation(compose.ui)
 
                 implementation(libs.kotlinx.datetime)

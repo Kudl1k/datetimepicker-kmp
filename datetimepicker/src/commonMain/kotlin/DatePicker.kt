@@ -4,9 +4,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -106,7 +106,7 @@ fun DatePicker(
             ) {
                 Text(
                     text = selectedMonth.getMonthName(),
-                    style = MaterialTheme.typography.h5,
+                    style = MaterialTheme.typography.headlineSmall,
                     modifier = Modifier.weight(1f)
                 )
                 Row(
@@ -125,7 +125,7 @@ fun DatePicker(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowLeft,
                             contentDescription = "Previous month",
-                            tint = MaterialTheme.colors.onSurface,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -142,7 +142,7 @@ fun DatePicker(
                         Icon(
                             imageVector = Icons.Default.KeyboardArrowRight,
                             contentDescription = "Next month",
-                            tint = MaterialTheme.colors.onSurface,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(40.dp)
                         )
                     }
@@ -204,11 +204,11 @@ fun DatePicker(
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 color = when {
-                                    calendarDate.isDisabled -> MaterialTheme.colors.onSurface.copy(alpha = 0.2f)
-                                    calendarDate.isSelected -> MaterialTheme.colors.onPrimary
-                                    calendarDate.isToday -> MaterialTheme.colors.primary
-                                    calendarDate.isCurrentMonth -> MaterialTheme.colors.onSurface
-                                    else -> MaterialTheme.colors.onSurface.copy(alpha = 0.5f)
+                                    calendarDate.isDisabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                                    calendarDate.isSelected -> MaterialTheme.colorScheme.onPrimary
+                                    calendarDate.isToday -> MaterialTheme.colorScheme.primary
+                                    calendarDate.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
+                                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                                 }
                             )
                         }
@@ -222,7 +222,7 @@ fun DatePicker(
 @Composable
 private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
     return when (date.isToday) {
-        true -> this.border(1.dp, MaterialTheme.colors.primary, shape = RoundedCornerShape(100))
+        true -> this.border(1.dp, MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100))
         false -> this
     }
 }
@@ -230,7 +230,7 @@ private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
 @Composable
 private fun Modifier.datePickerBoxSelected(date: CalendarDate): Modifier {
     return when (date.isSelected) {
-        true -> this.background(MaterialTheme.colors.primary, shape = RoundedCornerShape(100))
+        true -> this.background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100))
         false -> this
     }
 }
@@ -240,11 +240,11 @@ private fun Modifier.datePickerBoxSelectedRange(date: CalendarDate): Modifier {
     return when (date.isInSelectedRange) {
         true -> {
             if (date.isSelected && date.isStartOfRange) {
-                this.background(MaterialTheme.colors.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))
+                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))
             } else if (date.isSelected) {
-                this.background(MaterialTheme.colors.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp))
+                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp))
             } else {
-                this.background(MaterialTheme.colors.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(0.dp))
+                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(0.dp))
             }
         }
         false -> this
