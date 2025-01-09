@@ -1,3 +1,6 @@
+package cz.kudladev
+
+import androidx.compose.ui.graphics.Color
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
@@ -16,7 +19,7 @@ object DateTimeOperations {
     private var dateTimePickerDefaults = DateTimePickerDefaults()
 
     fun setDateTimePickerDefaults(dateTimePickerDefaults: DateTimePickerDefaults) {
-        this.dateTimePickerDefaults = dateTimePickerDefaults
+        DateTimeOperations.dateTimePickerDefaults = dateTimePickerDefaults
     }
 
     fun getLocalDate(): LocalDate {
@@ -134,3 +137,15 @@ data class DateTimePickerDefaults(
         }
     }
 }
+
+data class DateTimePickerColors(
+    val selectedDateColor: Color,
+    val disabledDateColor: Color,
+    val todayDateBorderColor: Color,
+    val rangeDateDateColor: Color,
+    val textDisabledDateColor: Color,
+    val textSelectedDateColor: Color,
+    val textTodayDateColor: Color,
+    val textCurrentMonthDateColor: Color,
+    val textOtherColor: Color,
+)

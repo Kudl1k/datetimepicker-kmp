@@ -1,4 +1,4 @@
-
+package cz.kudladev
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,15 +14,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import DateTimeOperations.addMonth
-import DateTimeOperations.getLocalDate
-import DateTimeOperations.getCalendarDates
-import DateTimeOperations.getMonthName
-import DateTimeOperations.subtractMonth
-import DateTimeOperations.format
+import cz.kudladev.DateTimeOperations.addMonth
+import cz.kudladev.DateTimeOperations.getLocalDate
+import cz.kudladev.DateTimeOperations.getCalendarDates
+import cz.kudladev.DateTimeOperations.getMonthName
+import cz.kudladev.DateTimeOperations.subtractMonth
+import cz.kudladev.DateTimeOperations.format
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
@@ -32,7 +31,19 @@ fun DatePicker(
     range: Boolean = false,
     onSelectDate: (LocalDate) -> Unit = {},
     onRangeSelected: (LocalDate, LocalDate) -> Unit = { _, _ -> },
+    clickable: Boolean = true,
     dateTimePickerDefaults: DateTimePickerDefaults = DateTimePickerDefaults(),
+    dateTimePickerColors: DateTimePickerColors = DateTimePickerColors(
+        selectedDateColor = MaterialTheme.colorScheme.primary,
+        disabledDateColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+        todayDateBorderColor = MaterialTheme.colorScheme.primary,
+        rangeDateDateColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        textDisabledDateColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+        textSelectedDateColor = MaterialTheme.colorScheme.onPrimary,
+        textTodayDateColor = MaterialTheme.colorScheme.primary,
+        textCurrentMonthDateColor = MaterialTheme.colorScheme.onSurface,
+        textOtherColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+    )
 ) {
     DateTimeOperations.setDateTimePickerDefaults(dateTimePickerDefaults)
 
@@ -178,11 +189,11 @@ fun DatePicker(
                             modifier = Modifier
                                 .aspectRatio(1f)
                                 .weight(1f)
-                                .datePickerBoxSelectedRange(calendarDate)
+                                .datePickerBoxSelectedRange(calendarDate,dateTimePickerColors)
                                 .clip(shape = RoundedCornerShape(100))
-                                .datePickerBoxToday(calendarDate)
-                                .datePickerBoxSelected(calendarDate)
-                                .clickable(enabled = !calendarDate.isDisabled) {
+                                .datePickerBoxToday(calendarDate, dateTimePickerColors)
+                                .datePickerBoxSelected(calendarDate, dateTimePickerColors)
+                                .clickable(enabled = !calendarDate.isDisabled && clickable) {
                                     if (selectedDate == null) {
                                         selectedDate = calendarDate
                                     } else if (selectedSecondDate == null && range) {
@@ -204,11 +215,11 @@ fun DatePicker(
                                 textAlign = TextAlign.Center,
                                 maxLines = 1,
                                 color = when {
-                                    calendarDate.isDisabled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                                    calendarDate.isSelected -> MaterialTheme.colorScheme.onPrimary
-                                    calendarDate.isToday -> MaterialTheme.colorScheme.primary
-                                    calendarDate.isCurrentMonth -> MaterialTheme.colorScheme.onSurface
-                                    else -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                    calendarDate.isDisabled -> dateTimePickerColors.textDisabledDateColor
+                                    calendarDate.isSelected -> dateTimePickerColors.textSelectedDateColor
+                                    calendarDate.isToday -> dateTimePickerColors.textTodayDateColor
+                                    calendarDate.isCurrentMonth -> dateTimePickerColors.textCurrentMonthDateColor
+                                    else -> dateTimePickerColors.textOtherColor
                                 }
                             )
                         }
@@ -220,31 +231,39 @@ fun DatePicker(
 }
 
 @Composable
-private fun Modifier.datePickerBoxToday(date: CalendarDate): Modifier {
+private fun Modifier.datePickerBoxToday(date: CalendarDate, dateTimePickerColors: DateTimePickerColors): Modifier {
     return when (date.isToday) {
-        true -> this.border(1.dp, MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100))
+        true -> this.border(1.dp, dateTimePickerColors.todayDateBorderColor, shape = RoundedCornerShape(100))
         false -> this
     }
 }
 
 @Composable
-private fun Modifier.datePickerBoxSelected(date: CalendarDate): Modifier {
+private fun Modifier.datePickerBoxSelected(date: CalendarDate, dateTimePickerColors: DateTimePickerColors): Modifier {
     return when (date.isSelected) {
-        true -> this.background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(100))
+        true -> this.background(dateTimePickerColors.selectedDateColor, shape = RoundedCornerShape(100))
         false -> this
     }
 }
 
 @Composable
-private fun Modifier.datePickerBoxSelectedRange(date: CalendarDate): Modifier {
+private fun Modifier.datePickerBoxDisabled(date: CalendarDate, dateTimePickerColors: DateTimePickerColors): Modifier {
+    return when (date.isDisabled) {
+        true -> this.background(dateTimePickerColors.disabledDateColor, shape = RoundedCornerShape(100))
+        false -> this
+    }
+}
+
+@Composable
+private fun Modifier.datePickerBoxSelectedRange(date: CalendarDate, dateTimePickerColors: DateTimePickerColors): Modifier {
     return when (date.isInSelectedRange) {
         true -> {
             if (date.isSelected && date.isStartOfRange) {
-                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))
+                this.background(dateTimePickerColors.rangeDateDateColor, shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp))
             } else if (date.isSelected) {
-                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp))
+                this.background(dateTimePickerColors.rangeDateDateColor, shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp))
             } else {
-                this.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = RoundedCornerShape(0.dp))
+                this.background(dateTimePickerColors.rangeDateDateColor, shape = RoundedCornerShape(0.dp))
             }
         }
         false -> this
